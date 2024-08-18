@@ -1,0 +1,6 @@
+node_modules/
+assembly/out/
+dist/
+build/
+build.zip
+package-lock.json
