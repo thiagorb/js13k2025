@@ -1,13 +1,31 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+        <title>Game</title>
+    </head>
 
-<head>
-    <meta charset="utf-8" />
-    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' />
-    <title>Game</title>
-</head>
+    <body style="margin: 0; padding: 0; overflow: hidden; background-color: #666">
+        <div
+            style="display: inline-block; width: 1000px; height: 1000px; background-image: url('cat_walk.svg')"
+            id="catImage"
+        ></div>
+        <script>
+            const frames = 8;
+            let currentFrame = 1;
+            function updateFrame() {
+                const catImage = document.getElementById('catImage');
 
-<body>
-</body>
+                if (!catImage) {
+                    return;
+                }
 
+                catImage.style.backgroundPosition = `${(currentFrame % frames) * -1000}px 0`;
+                catImage.style.transform = `translateX(${currentFrame * 80}px)`;
+                currentFrame++;
+            }
+            setInterval(updateFrame, 1000 / 12); // Update at 6 FPS
+        </script>
+    </body>
 </html>
