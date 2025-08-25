@@ -1,20 +1,14 @@
+version: "3.9"
+
 services:
-    node:
-        init: true
-        build: .
-        command: 
-          - bash
-          - -c
-          - |
-            if [ -f package-lock.json ]; then
-                npm ci
-            else
-                npm install
-            fi \
-              && npm run serve
-        volumes:
-            - ./:/app
-        working_dir: /app
-        user: ${UID:-1000}:${GID:-1000}
-        ports:
-            - ${PORT:-8080}:8080
+  tetris:
+    build: .
+    container_name: tetris-vite
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./src:/app/src
+      - ./vite.config.ts:/app/vite.config.ts
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./package.json:/app/package.json
+    command: npm run dev

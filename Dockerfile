@@ -1,6 +1,13 @@
-FROM node:latest
+FROM node:20-alpine
 
-RUN apt-get update \
-    && apt-get install -y \
-        zip \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm install
+
+COPY tsconfig.json vite.config.ts ./
+COPY src ./src
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev"]
