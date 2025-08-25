@@ -1,24 +1,33 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Tetris in TS</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Tetris</title>
     <style>
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: #0f172a;
-            margin: 0;
+            background-color: #333;
+            color: #eee;
+            font-family: sans-serif;
+            flex-direction: column;
         }
         canvas {
-            background: #111;
-            border-radius: 8px;
+            border: 2px solid #ccc;
+            background-color: #000;
+        }
+        p {
+            margin-top: 20px;
+            font-size: 1.2em;
         }
     </style>
 </head>
 <body>
+<h1>Cat Tetris</h1>
+<p>Use Arrow Keys to move and rotate. Space to drop.</p>
 <canvas id="game" width="300" height="600"></canvas>
 <script type="module" src="/index.ts"></script>
 </body>

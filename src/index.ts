@@ -1,3 +1,6 @@
+// src/main.ts
+import { drawCatBlock, CatRole, preloadCatImages } from "./catSvg";
+
 // --- Spielfeld-Größe ---
 const COLS = 10;
 const ROWS = 20;
@@ -9,64 +12,119 @@ const ctx = canvas.getContext("2d")!;
 canvas.width = COLS * BLOCK;
 canvas.height = ROWS * BLOCK;
 
-// --- Shapes (Tetrominos) ---
-const SHAPES: number[][][] = [
-    [[1, 1, 1, 1]], // I
-    [
-        [1, 1],
-        [1, 1],
-    ], // O
-    [
-        [0, 1, 0],
-        [1, 1, 1],
-    ], // T
-    [
-        [1, 0, 0],
-        [1, 1, 1],
-    ], // J
-    [
-        [0, 0, 1],
-        [1, 1, 1],
-    ], // L
-    [
-        [0, 1, 1],
-        [1, 1, 0],
-    ], // S
-    [
-        [1, 1, 0],
-        [0, 1, 1],
-    ], // Z
-];
+// --- Typen ---
+type Cell = { color: string; role: CatRole } | null;
 
-// Farben für die Steine
-const COLORS = [
-    "#00f0f0", // I
-    "#f0f000", // O
-    "#a000f0", // T
-    "#0000f0", // J
-    "#f0a000", // L
-    "#00f000", // S
-    "#f00000", // Z
-];
-
-// --- Spielfeld ---
-let board: (string | null)[][] = Array.from({ length: ROWS }, () =>
-    Array(COLS).fill(null)
-);
-
-// --- Aktuelles Teil ---
-let current: {
+type Piece = {
     shape: number[][];
+    roles: (CatRole | null)[][];
     color: string;
     x: number;
     y: number;
-} = spawnPiece();
+};
 
-function spawnPiece() {
-    const i = Math.floor(Math.random() * SHAPES.length);
+// --- Katzen-Tetrominos ---
+const PIECES: Piece[] = [
+    {
+        shape: [[1, 1, 1, 1]],
+        roles: [["head", "body", "body", "tail"]],
+        color: "#ff8800",
+        x: 0,
+        y: 0,
+    },
+    {
+        shape: [
+            [1, 1],
+            [1, 1],
+        ],
+        roles: [
+            ["head", "body"],
+            ["legs", "tail"],
+        ],
+        color: "#ff00aa",
+        x: 0,
+        y: 0,
+    },
+    {
+        shape: [
+            [0, 1, 0],
+            [1, 1, 1],
+        ],
+        roles: [
+            [null, "head", null],
+            ["legs", "body", "tail"],
+        ],
+        color: "#00ccff",
+        x: 0,
+        y: 0,
+    },
+    {
+        shape: [
+            [1, 0, 0],
+            [1, 1, 1],
+        ],
+        roles: [
+            ["head", null, null],
+            ["legs", "body", "tail"],
+        ],
+        color: "#00ff00",
+        x: 0,
+        y: 0,
+    },
+    {
+        shape: [
+            [0, 0, 1],
+            [1, 1, 1],
+        ],
+        roles: [
+            [null, null, "head"],
+            ["legs", "body", "tail"],
+        ],
+        color: "#ff0000",
+        x: 0,
+        y: 0,
+    },
+    {
+        shape: [
+            [0, 1, 1],
+            [1, 1, 0],
+        ],
+        roles: [
+            [null, "head", "body"],
+            ["legs", "body", null],
+        ],
+        color: "#ffaa00",
+        x: 0,
+        y: 0,
+    },
+    {
+        shape: [
+            [1, 1, 0],
+            [0, 1, 1],
+        ],
+        roles: [
+            ["head", "body", null],
+            [null, "body", "tail"],
+        ],
+        color: "#8800ff",
+        x: 0,
+        y: 0,
+    },
+];
+
+// --- Spielfeld ---
+let board: Cell[][] = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+
+// --- Aktuelles Teil ---
+let current: Piece = spawnPiece();
+
+function spawnPiece(): Piece {
+    const i = Math.floor(Math.random() * PIECES.length);
+    const p = PIECES[i];
     return {
-        shape: SHAPES[i],
-        color: COLORS[i],
+        shape: p.shape.map(r => [...r]),
+        roles: p.roles.map(r => [...r]),
+        color: p.color,
         x: Math.floor(COLS / 2) - 1,
         y: 0,
     };
@@ -79,28 +137,21 @@ function collides(shape: number[][], x: number, y: number): boolean {
             if (shape[r][c]) {
                 const nx = x + c;
                 const ny = y + r;
-                if (
-                    nx < 0 ||
-                    nx >= COLS ||
-                    ny >= ROWS ||
-                    (ny >= 0 && board[ny][nx])
-                ) {
-                    return true;
-                }
+                if (nx < 0 || nx >= COLS || ny >= ROWS || (ny >= 0 && board[ny][nx])) return true;
             }
         }
     }
     return false;
 }
 
-// --- Shape in Spielfeld „einbrennen“ ---
+// --- Shape einbrennen ---
 function merge() {
     current.shape.forEach((row, r) =>
         row.forEach((val, c) => {
             if (val) {
                 const nx = current.x + c;
                 const ny = current.y + r;
-                if (ny >= 0) board[ny][nx] = current.color;
+                if (ny >= 0) board[ny][nx] = { color: current.color, role: current.roles[r][c]! };
             }
         })
     );
@@ -108,7 +159,7 @@ function merge() {
 
 // --- Volle Reihen löschen ---
 function clearRows() {
-    board = board.filter((row) => row.some((c) => !c));
+    board = board.filter(row => row.some(c => !c));
     while (board.length < ROWS) {
         board.unshift(Array(COLS).fill(null));
     }
@@ -116,59 +167,107 @@ function clearRows() {
 
 // --- Rotieren ---
 function rotate(shape: number[][]): number[][] {
-    return shape[0].map((_, i) => shape.map((row) => row[i]).reverse());
+    const n = shape.length;
+    const m = shape[0].length;
+    const newShape: number[][] = Array.from({ length: m }, () => Array(n).fill(0));
+    for (let r = 0; r < n; r++) {
+        for (let c = 0; c < m; c++) {
+            newShape[c][n - r - 1] = shape[r][c];
+        }
+    }
+    return newShape;
+}
+
+// --- Update Roles after Rotation ---
+function updateRoles(piece: Piece, newShape: number[][]): (CatRole | null)[][] {
+    const oldRoles = piece.roles;
+    const newRoles: (CatRole | null)[][] = newShape.map(row => row.map(cell => (cell ? "body" : null)));
+
+    let head = null;
+    let tail = null;
+    let headPos: { r: number, c: number } | null = null;
+    let tailPos: { r: number, c: number } | null = null;
+
+    oldRoles.forEach((row, r) =>
+        row.forEach((role, c) => {
+            if (role === 'head') headPos = { r, c };
+            if (role === 'tail') tailPos = { r, c };
+        })
+    );
+
+    if (headPos) {
+        const newHeadPos = { r: headPos.c, c: newShape[0].length - headPos.r - 1 };
+        newRoles[newHeadPos.r][newHeadPos.c] = "head";
+    }
+
+    if (tailPos) {
+        const newTailPos = { r: tailPos.c, c: newShape[0].length - tailPos.r - 1 };
+        newRoles[newTailPos.r][newTailPos.c] = "tail";
+    }
+
+    oldRoles.forEach((row, r) =>
+        row.forEach((role, c) => {
+            if (role === 'legs') {
+                const newLegsPos = { r: c, c: newShape[0].length - r - 1 };
+                if (newShape[newLegsPos.r][newLegsPos.c]) {
+                    newRoles[newLegsPos.r][newLegsPos.c] = "legs";
+                }
+            }
+        })
+    );
+
+    if (newShape.length === 1 || newShape[0].length === 1) {
+        newRoles.forEach((row, r) => row.forEach((role, c) => {
+            if (role === "body") newRoles[r][c] = "body-side";
+        }));
+    }
+
+    return newRoles;
 }
 
 // --- Zeichnen ---
-function drawBlock(x: number, y: number, color: string) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x * BLOCK, y * BLOCK, BLOCK - 1, BLOCK - 1);
-}
-
 function drawBoard() {
-    ctx.fillStyle = "#111";
+    ctx.fillStyle = "#1c1c2e";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Board
     for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
-            if (board[r][c]) {
-                drawBlock(c, r, board[r][c]!);
-            }
+            const cell = board[r][c];
+            if (cell) drawCatBlock(ctx, c, r, cell.color, cell.role);
         }
     }
 
-    // Aktuelles Teil
     current.shape.forEach((row, r) =>
         row.forEach((val, c) => {
-            if (val) {
-                drawBlock(current.x + c, current.y + r, current.color);
-            }
+            if (val) drawCatBlock(ctx, current.x + c, current.y + r, current.color, current.roles[r][c]!);
         })
     );
 }
 
 // --- Steuerung ---
-document.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft") {
-        if (!collides(current.shape, current.x - 1, current.y)) current.x--;
-    }
-    if (e.key === "ArrowRight") {
-        if (!collides(current.shape, current.x + 1, current.y)) current.x++;
-    }
-    if (e.key === "ArrowDown") {
-        if (!collides(current.shape, current.x, current.y + 1)) current.y++;
-    }
+document.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft" && !collides(current.shape, current.x - 1, current.y)) current.x--;
+    if (e.key === "ArrowRight" && !collides(current.shape, current.x + 1, current.y)) current.x++;
+    if (e.key === "ArrowDown" && !collides(current.shape, current.x, current.y + 1)) current.y++;
     if (e.key === "ArrowUp") {
-        const rotated = rotate(current.shape);
-        if (!collides(rotated, current.x, current.y)) {
-            current.shape = rotated;
+        const newShape = rotate(current.shape);
+        const newRoles = updateRoles(current, newShape);
+
+        const kicks = [0, -1, 1, -2, 2];
+        for (let i = 0; i < kicks.length; i++) {
+            if (!collides(newShape, current.x + kicks[i], current.y)) {
+                current.shape = newShape;
+                current.roles = newRoles;
+                current.x += kicks[i];
+                break;
+            }
         }
     }
     if (e.key === " ") {
         while (!collides(current.shape, current.x, current.y + 1)) current.y++;
         tick();
     }
+    drawBoard();
 });
 
 // --- Spiel-Loop ---
@@ -203,4 +302,9 @@ function tick() {
     }
 }
 
-update();
+preloadCatImages(PIECES).then(() => {
+    console.log("Cat images preloaded! Starting game.");
+    update();
+}).catch(e => {
+    console.error("Failed to preload cat images:", e);
+});
