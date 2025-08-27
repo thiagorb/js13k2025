@@ -1,5 +1,5 @@
 // src/main.ts
-import { drawCatBlock, CatRole, preloadCatImages } from "./catSvg";
+import { drawCatBlock, CatRole, preloadCatImages } from './catSvg';
 
 // --- Spielfeld-Größe ---
 const COLS = 10;
@@ -7,8 +7,8 @@ const ROWS = 20;
 const BLOCK = 30;
 
 // --- Canvas ---
-const canvas = document.getElementById("game") as HTMLCanvasElement;
-const ctx = canvas.getContext("2d")!;
+const canvas = document.getElementById('game') as HTMLCanvasElement;
+const ctx = canvas.getContext('2d')!;
 canvas.width = COLS * BLOCK;
 canvas.height = ROWS * BLOCK;
 
@@ -27,8 +27,8 @@ type Piece = {
 const PIECES: Piece[] = [
     {
         shape: [[1, 1, 1, 1]],
-        roles: [["head", "body", "body", "tail"]],
-        color: "#ff8800",
+        roles: [['head', 'body', 'body', 'tail']],
+        color: '#ff8800',
         x: 0,
         y: 0,
     },
@@ -38,10 +38,10 @@ const PIECES: Piece[] = [
             [1, 1],
         ],
         roles: [
-            ["head", "body"],
-            ["legs", "tail"],
+            ['head', 'body'],
+            ['legs', 'tail'],
         ],
-        color: "#ff00aa",
+        color: '#ff00aa',
         x: 0,
         y: 0,
     },
@@ -51,10 +51,10 @@ const PIECES: Piece[] = [
             [1, 1, 1],
         ],
         roles: [
-            [null, "head", null],
-            ["legs", "body", "tail"],
+            [null, 'head', null],
+            ['legs', 'body', 'tail'],
         ],
-        color: "#00ccff",
+        color: '#00ccff',
         x: 0,
         y: 0,
     },
@@ -64,10 +64,10 @@ const PIECES: Piece[] = [
             [1, 1, 1],
         ],
         roles: [
-            ["head", null, null],
-            ["legs", "body", "tail"],
+            ['head', null, null],
+            ['legs', 'body', 'tail'],
         ],
-        color: "#00ff00",
+        color: '#00ff00',
         x: 0,
         y: 0,
     },
@@ -77,10 +77,10 @@ const PIECES: Piece[] = [
             [1, 1, 1],
         ],
         roles: [
-            [null, null, "head"],
-            ["legs", "body", "tail"],
+            [null, null, 'head'],
+            ['legs', 'body', 'tail'],
         ],
-        color: "#ff0000",
+        color: '#ff0000',
         x: 0,
         y: 0,
     },
@@ -90,10 +90,10 @@ const PIECES: Piece[] = [
             [1, 1, 0],
         ],
         roles: [
-            [null, "head", "body"],
-            ["legs", "body", null],
+            [null, 'head', 'body'],
+            ['legs', 'body', null],
         ],
-        color: "#ffaa00",
+        color: '#ffaa00',
         x: 0,
         y: 0,
     },
@@ -103,10 +103,10 @@ const PIECES: Piece[] = [
             [0, 1, 1],
         ],
         roles: [
-            ["head", "body", null],
-            [null, "body", "tail"],
+            ['head', 'body', null],
+            [null, 'body', 'tail'],
         ],
-        color: "#8800ff",
+        color: '#8800ff',
         x: 0,
         y: 0,
     },
@@ -122,8 +122,8 @@ function spawnPiece(): Piece {
     const i = Math.floor(Math.random() * PIECES.length);
     const p = PIECES[i];
     return {
-        shape: p.shape.map(r => [...r]),
-        roles: p.roles.map(r => [...r]),
+        shape: p.shape.map((r) => [...r]),
+        roles: p.roles.map((r) => [...r]),
         color: p.color,
         x: Math.floor(COLS / 2) - 1,
         y: 0,
@@ -153,13 +153,13 @@ function merge() {
                 const ny = current.y + r;
                 if (ny >= 0) board[ny][nx] = { color: current.color, role: current.roles[r][c]! };
             }
-        })
+        }),
     );
 }
 
 // --- Volle Reihen löschen ---
 function clearRows() {
-    board = board.filter(row => row.some(c => !c));
+    board = board.filter((row) => row.some((c) => !c));
     while (board.length < ROWS) {
         board.unshift(Array(COLS).fill(null));
     }
@@ -181,28 +181,28 @@ function rotate(shape: number[][]): number[][] {
 // --- Update Roles after Rotation ---
 function updateRoles(piece: Piece, newShape: number[][]): (CatRole | null)[][] {
     const oldRoles = piece.roles;
-    const newRoles: (CatRole | null)[][] = newShape.map(row => row.map(cell => (cell ? "body" : null)));
+    const newRoles: (CatRole | null)[][] = newShape.map((row) => row.map((cell) => (cell ? 'body' : null)));
 
     let head = null;
     let tail = null;
-    let headPos: { r: number, c: number } | null = null;
-    let tailPos: { r: number, c: number } | null = null;
+    let headPos: { r: number; c: number } | null = null;
+    let tailPos: { r: number; c: number } | null = null;
 
     oldRoles.forEach((row, r) =>
         row.forEach((role, c) => {
             if (role === 'head') headPos = { r, c };
             if (role === 'tail') tailPos = { r, c };
-        })
+        }),
     );
 
     if (headPos) {
         const newHeadPos = { r: headPos.c, c: newShape[0].length - headPos.r - 1 };
-        newRoles[newHeadPos.r][newHeadPos.c] = "head";
+        newRoles[newHeadPos.r][newHeadPos.c] = 'head';
     }
 
     if (tailPos) {
         const newTailPos = { r: tailPos.c, c: newShape[0].length - tailPos.r - 1 };
-        newRoles[newTailPos.r][newTailPos.c] = "tail";
+        newRoles[newTailPos.r][newTailPos.c] = 'tail';
     }
 
     oldRoles.forEach((row, r) =>
@@ -210,16 +210,18 @@ function updateRoles(piece: Piece, newShape: number[][]): (CatRole | null)[][] {
             if (role === 'legs') {
                 const newLegsPos = { r: c, c: newShape[0].length - r - 1 };
                 if (newShape[newLegsPos.r][newLegsPos.c]) {
-                    newRoles[newLegsPos.r][newLegsPos.c] = "legs";
+                    newRoles[newLegsPos.r][newLegsPos.c] = 'legs';
                 }
             }
-        })
+        }),
     );
 
     if (newShape.length === 1 || newShape[0].length === 1) {
-        newRoles.forEach((row, r) => row.forEach((role, c) => {
-            if (role === "body") newRoles[r][c] = "body-side";
-        }));
+        newRoles.forEach((row, r) =>
+            row.forEach((role, c) => {
+                if (role === 'body') newRoles[r][c] = 'body-side';
+            }),
+        );
     }
 
     return newRoles;
@@ -227,7 +229,7 @@ function updateRoles(piece: Piece, newShape: number[][]): (CatRole | null)[][] {
 
 // --- Zeichnen ---
 function drawBoard() {
-    ctx.fillStyle = "#1c1c2e";
+    ctx.fillStyle = '#1c1c2e';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     for (let r = 0; r < ROWS; r++) {
@@ -240,16 +242,16 @@ function drawBoard() {
     current.shape.forEach((row, r) =>
         row.forEach((val, c) => {
             if (val) drawCatBlock(ctx, current.x + c, current.y + r, current.color, current.roles[r][c]!);
-        })
+        }),
     );
 }
 
 // --- Steuerung ---
-document.addEventListener("keydown", e => {
-    if (e.key === "ArrowLeft" && !collides(current.shape, current.x - 1, current.y)) current.x--;
-    if (e.key === "ArrowRight" && !collides(current.shape, current.x + 1, current.y)) current.x++;
-    if (e.key === "ArrowDown" && !collides(current.shape, current.x, current.y + 1)) current.y++;
-    if (e.key === "ArrowUp") {
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' && !collides(current.shape, current.x - 1, current.y)) current.x--;
+    if (e.key === 'ArrowRight' && !collides(current.shape, current.x + 1, current.y)) current.x++;
+    if (e.key === 'ArrowDown' && !collides(current.shape, current.x, current.y + 1)) current.y++;
+    if (e.key === 'ArrowUp') {
         const newShape = rotate(current.shape);
         const newRoles = updateRoles(current, newShape);
 
@@ -263,7 +265,7 @@ document.addEventListener("keydown", e => {
             }
         }
     }
-    if (e.key === " ") {
+    if (e.key === ' ') {
         while (!collides(current.shape, current.x, current.y + 1)) current.y++;
         tick();
     }
@@ -296,15 +298,17 @@ function tick() {
         clearRows();
         current = spawnPiece();
         if (collides(current.shape, current.x, current.y)) {
-            alert("Game Over!");
+            alert('Game Over!');
             board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
         }
     }
 }
 
-preloadCatImages(PIECES).then(() => {
-    console.log("Cat images preloaded! Starting game.");
-    update();
-}).catch(e => {
-    console.error("Failed to preload cat images:", e);
-});
+preloadCatImages(PIECES)
+    .then(() => {
+        console.log('Cat images preloaded! Starting game.');
+        update();
+    })
+    .catch((e) => {
+        console.error('Failed to preload cat images:', e);
+    });

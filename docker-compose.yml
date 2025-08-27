@@ -1,14 +1,7 @@
-version: "3.9"
-
 services:
   tetris:
     build: .
-    container_name: tetris-vite
     ports:
       - "5173:5173"
     volumes:
-      - ./src:/app/src
-      - ./vite.config.ts:/app/vite.config.ts
-      - ./tsconfig.json:/app/tsconfig.json
-      - ./package.json:/app/package.json
-    command: npm run dev
+      - .:/app
