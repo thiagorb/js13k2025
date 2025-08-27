@@ -9,6 +9,7 @@ const BLOCK = 30;
 // --- Canvas ---
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
+
 canvas.width = COLS * BLOCK;
 canvas.height = ROWS * BLOCK;
 
@@ -116,7 +117,63 @@ const PIECES: Piece[] = [
 let board: Cell[][] = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
 
 // --- Aktuelles Teil ---
-let current: Piece = spawnPiece();
+//let current: Piece = spawnPiece();
+let next: Piece = spawnPiece();
+let current: Piece = next;
+
+drawNextPreview();
+
+function setNewPiece() {
+    current = next;
+    next = spawnPiece();
+    drawNextPreview();
+}
+
+// Funktion, um das nächste Piece im Vorschau-Canvas darzustellen
+function drawNextPreview() {
+    const canvas = document.getElementById('nextPiece') as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const { shape, roles, color } = next;
+
+    // Ermittele die Begrenzung des Pieces
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (let y = 0; y < shape.length; y++) {
+        for (let x = 0; x < shape[y].length; x++) {
+            if (shape[y][x]) {
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+        }
+    }
+    // Blockanzahl in X und Y Richtung des tatsächlichen Pieces
+    const pieceWidth = maxX - minX + 1;
+    const pieceHeight = maxY - minY + 1;
+
+    // Passe Blockgröße bei großem Preview-Canvas ggf. an, sonst nimm festen Wert wie in catSvg.BLOCK_SIZE:
+    const previewBlockSize = 30;
+
+    // Berechne Offset, um das Piece zentriert darzustellen
+    const offsetX = Math.floor((canvas.width - pieceWidth * previewBlockSize) / 2) - minX * previewBlockSize;
+    const offsetY = Math.floor((canvas.height - pieceHeight * previewBlockSize) / 2) - minY * previewBlockSize;
+
+    // Zeichne das Teil
+    for (let y = 0; y < shape.length; y++) {
+        for (let x = 0; x < shape[y].length; x++) {
+            if (shape[y][x] && roles[y][x]) {
+                // drawCatBlock erwartet Block-Koordinaten multipliziert mit previewBlockSize ‒ also vorher Offset einrechnen
+                ctx.save();
+                ctx.translate(offsetX, offsetY);
+                drawCatBlock(ctx, x, y, color, roles[y][x]!);
+                ctx.restore();
+            }
+        }
+    }
+}
 
 function spawnPiece(): Piece {
     const i = Math.floor(Math.random() * PIECES.length);
@@ -160,8 +217,10 @@ function merge() {
 // --- Volle Reihen löschen ---
 function clearRows() {
     board = board.filter((row) => row.some((c) => !c));
+
     while (board.length < ROWS) {
         board.unshift(Array(COLS).fill(null));
+        addRowsCleared(1);
     }
 }
 
@@ -280,6 +339,7 @@ function update(time = 0) {
     const delta = time - lastTime;
     lastTime = time;
     dropCounter += delta;
+    updateTimeScore(time);
 
     if (dropCounter > 500) {
         tick();
@@ -296,19 +356,73 @@ function tick() {
     } else {
         merge();
         clearRows();
-        current = spawnPiece();
+        setNewPiece();
         if (collides(current.shape, current.x, current.y)) {
             alert('Game Over!');
+            resetScore();
             board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
         }
     }
 }
 
-preloadCatImages(PIECES)
-    .then(() => {
-        console.log('Cat images preloaded! Starting game.');
-        update();
-    })
-    .catch((e) => {
-        console.error('Failed to preload cat images:', e);
+let gameStarted = false;
+
+function startGame() {
+    resetScore();
+    if (gameStarted) return;
+    gameStarted = true;
+    lastTime = 0;
+    dropCounter = 0;
+    board = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    setNewPiece(),
+    update();
+}
+
+const startButton = document.getElementById('startGame');
+if (startButton) {
+    startButton.addEventListener('click', () => {
+        preloadCatImages(PIECES)
+            .then(() => {
+                startButton.style.display = 'none';
+                startGame();
+            })
+            .catch((e) => {
+                console.error('Failed to preload cat images:', e);
+            });
     });
+}
+
+// src/index.ts
+let score = 0;
+let lastSecondTimestamp = 0;
+
+export function resetScore() {
+    score = 0;
+    updateScoreDisplay();
+    lastSecondTimestamp = 0;
+}
+
+export function addRowsCleared(rows: number) {
+    score += rows * 100;
+    updateScoreDisplay();
+}
+
+export function updateTimeScore(time: number) {
+    if (!lastSecondTimestamp) lastSecondTimestamp = time;
+    let secondsPassed = 0;
+    while (time - lastSecondTimestamp >= 10000) {
+        score += 10;
+        lastSecondTimestamp += 10000;
+        secondsPassed++;
+    }
+    if (secondsPassed > 0) updateScoreDisplay();
+}
+
+export function updateScoreDisplay() {
+    const el = document.getElementById('scoreValue');
+    if (el) el.textContent = String(score);
+}
+
+export function getScore() {
+    return score;
+}

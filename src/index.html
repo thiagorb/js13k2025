@@ -23,12 +23,83 @@
             margin-top: 20px;
             font-size: 1.2em;
         }
+         #gameContainer {
+             position: relative;
+             display: inline-block;
+         }
+        #game {
+            display: block;
+            background: #1c1c2e;
+            border-radius: 16px;
+            box-shadow: 0 0 56px #0009;
+        }
+        #startGame {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 24px 42px;
+            font-size: 2rem;
+            font-family: inherit;
+            color: #fff7e0;
+            background: rgba(200, 80, 255, 0.85);
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            box-shadow: 0 6px 40px #56138899, 0 1.5px 6px #fff3 inset;
+            backdrop-filter: blur(1.5px);
+            transition: transform 0.07s, box-shadow 0.18s;
+            outline: none;
+            z-index: 2;
+        }
+        #startGame:hover, #startGame:focus {
+            background: rgba(255, 122, 200, 0.95);
+            transform: translate(-50%, -50%) scale(1.06);
+            box-shadow: 0 8px 48px #ee43becc, 0 1.5px 8px #fff6 inset;
+        }
+        #scorePanel {
+            min-width: 220px;   /* vorher 120px */
+            margin-left: 32px;
+            background: #3a316f;
+            color: #fff7e0;
+            border-radius: 16px;
+            font-size: 1.8rem;
+            box-shadow: 0 1px 22px #0006;
+            padding: 48px 30px; /* vorher 28px 18px */
+            user-select: none;
+            text-align: center;
+            font-family: inherit;
+        }
+        #scorePanel div:first-child {
+            font-size: 1.25rem;
+            opacity: 0.85;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        #scoreValue {
+            font-weight: bold;
+            font-size: 2.4rem;
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
 <h1>Cat Tetris</h1>
 <p>Use Arrow Keys to move and rotate. Space to drop.</p>
-<canvas id="game" width="300" height="600"></canvas>
+<div id="gameUi" style="display:flex; align-items: start;">
+    <div id="gameContainer" style="position: relative; display: inline-block;">
+        <canvas id="game"></canvas>
+        <button id="startGame">🐱 Spiel starten</button>
+    </div>
+    <div id="scorePanel">
+        <div>Points</div>
+        <div id="scoreValue">0</div>
+
+        <div id="nextPieceLabel" style="margin-top:22px; font-size:1.1rem; opacity:.8;">next piece</div>
+        <canvas id="nextPiece" width="150" height="90" style="background:#302e45; border-radius:8px; margin-top:8px; display:block; margin-left:auto; margin-right:auto;"></canvas>
+    </div>
+</div>
 <script type="module" src="/index.ts"></script>
 </body>
 </html>
