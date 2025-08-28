@@ -7,7 +7,7 @@ import legs from './images/legs.svg';
 export type CatRole = 'head' | 'body' | 'tail' | 'legs' | 'body-side';
 
 const renderedImages = new Map<string, HTMLImageElement>();
-const BLOCK_SIZE = 30;
+export const BLOCK_SIZE = 40;
 const IMAGE_SIZE = 100; // original SVG size
 const IMAGE_PADDING = 35;
 const IMAGE_BLOCK_SIZE = IMAGE_SIZE - IMAGE_PADDING * 2;
@@ -39,8 +39,8 @@ export function drawCatBlock(
     if (img) {
         ctx.drawImage(
             img,
-            x * BLOCK_SIZE - IMAGE_PADDING,
-            y * BLOCK_SIZE - IMAGE_PADDING,
+            x * BLOCK_SIZE - (IMAGE_PADDING * BLOCK_SIZE) / IMAGE_BLOCK_SIZE,
+            y * BLOCK_SIZE - (IMAGE_PADDING * BLOCK_SIZE) / IMAGE_BLOCK_SIZE,
             (BLOCK_SIZE * IMAGE_SIZE) / IMAGE_BLOCK_SIZE,
             (BLOCK_SIZE * IMAGE_SIZE) / IMAGE_BLOCK_SIZE
         );

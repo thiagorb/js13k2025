@@ -1,10 +1,9 @@
 // src/main.ts
-import { drawCatBlock, preloadCatImages, CatRole, getRandomSpecialColor } from './catSvg';
+import { drawCatBlock, preloadCatImages, CatRole, getRandomSpecialColor, BLOCK_SIZE } from './catSvg';
 import { resetScore, addRowsCleared, updateTimeScore, getScore, updateScoreDisplay } from './index';
 
 const COLS = 10;
 const ROWS = 20;
-const BLOCK_SIZE = 30;
 
 const canvas = document.getElementById('game') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d')!;
