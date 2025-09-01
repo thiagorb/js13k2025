@@ -18,6 +18,9 @@ type Cell = {
     role: CatRole;
     special?: boolean;
     hp?: number;
+    group: Set<Cell>;
+    x: number;
+    y: number;
 } | null;
 
 interface Piece {
@@ -93,6 +96,7 @@ function collide(piece: Piece): boolean {
 }
 
 function merge() {
+    const group = new Set<Cell>();
     current.shape.forEach((row,r)=>{
         row.forEach((val,c)=>{
             if(val){
@@ -103,8 +107,12 @@ function merge() {
                         color: current.color,
                         role: current.roles[r][c]!,
                         special: current.special ?? false,
-                        hp: current.special ? 2 : undefined
+                        hp: current.special ? 2 : undefined,
+                        group,
+                        x: nx,
+                        y: ny,
                     };
+                    group.add(board[ny][nx]);
                 }
             }
         });
@@ -127,7 +135,22 @@ function clearLines() {
                 const cell = board[r][c];
                 if(cell?.special && cell.hp && cell.hp>1){
                     cell.hp--;
-                } else {
+                } else {                    
+                    if (cell) {
+                    // split group in two: above and below
+                        const above = new Set<Cell>();
+                        const below = new Set<Cell>();
+                        for (let block of cell.group) {
+                            if (block!.y < r) {
+                                above.add(block);
+                                block!.group = above;
+                            } else {
+                                below.add(block);
+                                block!.group = below;
+                            }
+                        }
+                    }
+
                     board[r][c]=null;
                 }
             }
@@ -143,15 +166,34 @@ function clearLines() {
 
 // ==== Gravity nur oberhalb der gelöschten Reihe ====
 function applyGravityAboveLine(line: number) {
-    for(let y=line-1;y>=0;y--){
-        for(let x=0;x<COLS;x++){
-            const cell = board[y][x];
-            if(!cell) continue;
-            let ny = y;
-            while(ny+1 < ROWS && !board[ny+1][x]){
-                board[ny+1][x] = board[ny][x];
-                board[ny][x] = null;
-                ny++;
+    for(let r=line-1;r>=0;r--){
+        for(let c=0;c<COLS;c++){
+            const cell = board[r][c];
+            if (!cell) continue;
+
+            let canFall = true;
+            for(let block of cell.group){
+                if (block!.y + 1 >= ROWS) {
+                    canFall = false;
+                    break;
+                }
+
+                const under = board[block!.y + 1]?.[block!.x];
+                if (under && !cell.group.has(under)) {
+                    canFall = false;
+                    break;
+                }
+            }
+
+            if (canFall) {
+                for(let block of cell.group){
+                    board[block!.y][block!.x] = null;
+                }
+
+                for(let block of cell.group){
+                    board[block!.y + 1][block!.x] = block;
+                    block!.y += 1;
+                }
             }
         }
     }
