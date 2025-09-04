@@ -1,10 +1,9 @@
 import head from './images/head.svg';
 import body from './images/body.svg';
-import bodySide from './images/body-side.svg';
 import tail from './images/tail.svg';
 import legs from './images/legs.svg';
 
-export type CatRole = 'head' | 'body' | 'tail' | 'legs' | 'body-side';
+export type CatRole = 'head' | 'body' | 'tail' | 'legs';
 
 const renderedImages = new Map<string, HTMLImageElement>();
 export const BLOCK_SIZE = 40;
@@ -19,7 +18,6 @@ function createCatSvg(role: CatRole): string {
     switch (role) {
         case 'head': return head;
         case 'body': return body;
-        case 'body-side': return bodySide;
         case 'tail': return tail;
         case 'legs': return legs;
     }
@@ -48,7 +46,7 @@ export function drawCatBlock(
 }
 
 export function preloadCatImages(pieces: { color: string; roles: (CatRole | null)[][] }[]): Promise<void> {
-    const roles: CatRole[] = ['head', 'body', 'tail', 'legs', 'body-side'];
+    const roles: CatRole[] = ['head', 'body', 'tail', 'legs'];
     const colors = pieces.map(p => p.color);
     const allCombinations = new Set<string>();
 

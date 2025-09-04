@@ -33,7 +33,7 @@ interface Piece {
 }
 
 const PIECES: { shape: number[][]; roles: (CatRole | null)[][]; color: string }[] = [
-    { shape: [[1,1,1,1]], roles: [['head','body','body-side','tail']], color:'#ff6666' },
+    { shape: [[1,1,1,1]], roles: [['head','body','body','tail']], color:'#ff6666' },
     { shape: [[1,1],[1,1]], roles: [['head','body'],['legs','tail']], color:'#66ccff' },
     { shape: [[0,1,0],[1,1,1]], roles: [[null,'head',null],['tail','body','legs']], color:'#99ff99' },
     { shape: [[1,0,0],[1,1,1]], roles: [['head',null,null],['tail','body','legs']], color:'#ffcc66' }
