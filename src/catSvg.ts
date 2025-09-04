@@ -11,9 +11,6 @@ const IMAGE_SIZE = 100; // original SVG size
 const IMAGE_PADDING = 35;
 const IMAGE_BLOCK_SIZE = IMAGE_SIZE - IMAGE_PADDING * 2;
 
-// Spezialfarben für Spezialsteine
-const SPECIAL_COLORS = ['#ff00ff', '#00ffff', '#ffff00', '#ff8800', '#00ff55'];
-
 function createCatSvg(role: CatRole): string {
     switch (role) {
         case 'head': return head;
@@ -29,9 +26,8 @@ export function drawCatBlock(
     y: number,
     color: string,
     role: CatRole,
-    special?: boolean
 ) {
-    const key = `${special ? 'special-' : ''}${color}-${role}`;
+    const key = `${color}-${role}`;
     const img = renderedImages.get(key);
 
     if (img) {
@@ -45,15 +41,12 @@ export function drawCatBlock(
     }
 }
 
-export function preloadCatImages(pieces: { color: string; roles: (CatRole | null)[][] }[]): Promise<void> {
+export function preloadCatImages(colors: string[]): Promise<void> {
     const roles: CatRole[] = ['head', 'body', 'tail', 'legs'];
-    const colors = pieces.map(p => p.color);
     const allCombinations = new Set<string>();
 
     // normale Farben
     colors.forEach(color => roles.forEach(role => allCombinations.add(`${color}-${role}`)));
-    // Spezialfarben
-    SPECIAL_COLORS.forEach(color => roles.forEach(role => allCombinations.add(`special-${color}-${role}`)));
 
     const promises: Promise<void>[] = [];
 
@@ -84,10 +77,4 @@ export function preloadCatImages(pieces: { color: string; roles: (CatRole | null
     }
 
     return Promise.all(promises).then(() => {});
-}
-
-// --- NEU --- liefert zufällige Spezialfarbe
-export function getRandomSpecialColor(): string {
-    const i = Math.floor(Math.random() * SPECIAL_COLORS.length);
-    return SPECIAL_COLORS[i];
 }

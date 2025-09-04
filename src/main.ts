@@ -1,5 +1,5 @@
 // src/main.ts
-import { drawCatBlock, preloadCatImages, CatRole, getRandomSpecialColor, BLOCK_SIZE } from './catSvg';
+import { drawCatBlock, preloadCatImages, CatRole, BLOCK_SIZE } from './catSvg';
 import { resetScore, addRowsCleared, updateTimeScore, getScore, updateScoreDisplay } from './index';
 
 const COLS = 10;
@@ -24,7 +24,6 @@ type Cell = {
 } | null;
 
 interface Piece {
-    shape: number[][];
     roles: (CatRole | null)[][];
     color: string;
     x: number;
@@ -32,11 +31,15 @@ interface Piece {
     special?: boolean;
 }
 
-const PIECES: { shape: number[][]; roles: (CatRole | null)[][]; color: string }[] = [
-    { shape: [[1,1,1,1]], roles: [['head','body','body','tail']], color:'#ff6666' },
-    { shape: [[1,1],[1,1]], roles: [['head','body'],['legs','tail']], color:'#66ccff' },
-    { shape: [[0,1,0],[1,1,1]], roles: [[null,'head',null],['tail','body','legs']], color:'#99ff99' },
-    { shape: [[1,0,0],[1,1,1]], roles: [['head',null,null],['tail','body','legs']], color:'#ffcc66' }
+const SPECIAL_COLOR = '#333333';
+const PIECES: { name: string; roles: (CatRole | null)[][]; color: string }[] = [
+    { name: '4', roles: [['head','body','body','tail']], color:'#ff6666' },
+    { name: 'Q', roles: [['head','body'],['legs','tail']], color:'#0044ffff' },
+    { name: 'T', roles: [[null,'head',null],['tail','body','legs']], color:'#99ff99' },
+    { name: 'L', roles: [['head',null,null],['tail','body','legs']], color:'#ffcc66' },
+    { name: 'L2', roles: [[null,null,'head'],['legs','body','tail']], color:'#ff7b00ff' },
+    { name: 'S', roles: [['head','body',null],[null,'legs','tail']], color:'#f266ffff' },
+    { name: 'S2', roles: [[null,'body','head'],['tail','legs',null]], color:'#62cdffff' },
 ];
 
 let board: (Cell | null)[][] = Array.from({length: ROWS},()=>Array(COLS).fill(null));
@@ -54,22 +57,21 @@ function spawnPiece(): Piece {
     const score = getScore();
     let isSpecial = false;
 
-    if(score >= 500){
+    const i = Math.floor(Math.random()*PIECES.length);
+    const p = PIECES[i];
+
+    if(p.name !== 'Q' && score >= 100){
         const now = Date.now();
         if(now - lastSpecialSpawn >= 25000 || lastSpecialSpawn === 0){
-            isSpecial = false;
+            isSpecial = true;
             lastSpecialSpawn = now;
         }
     }
 
-    const i = Math.floor(Math.random()*PIECES.length);
-    const p = PIECES[i];
-
     return {
-        shape: p.shape.map(r=>[...r]),
         roles: p.roles.map(r=>[...r]),
-        color: isSpecial ? getRandomSpecialColor() : p.color,
-        x: Math.floor(COLS/2 - Math.ceil(p.shape[0].length/2)),
+        color: isSpecial ? SPECIAL_COLOR : p.color,
+        x: Math.floor(COLS/2 - Math.ceil(p.roles[0].length/2)),
         y: 0,
         special: isSpecial
     };
@@ -83,9 +85,9 @@ function setNewPiece() {
 
 // ==== Collision / Merge / Clear ====
 function collide(piece: Piece): boolean {
-    for(let r=0;r<piece.shape.length;r++){
-        for(let c=0;c<piece.shape[r].length;c++){
-            if(piece.shape[r][c]){
+    for(let r=0;r<piece.roles.length;r++){
+        for(let c=0;c<piece.roles[r].length;c++){
+            if(piece.roles[r][c]){
                 const x = piece.x+c;
                 const y = piece.y+r;
                 if(x<0||x>=COLS||y>=ROWS||(y>=0&&board[y][x])) return true;
@@ -97,7 +99,7 @@ function collide(piece: Piece): boolean {
 
 function merge() {
     // const group = new Set<Cell>();
-    current.shape.forEach((row,r)=>{
+    current.roles.forEach((row,r)=>{
         row.forEach((val,c)=>{
             if(val){
                 const nx = current.x+c;
@@ -192,12 +194,12 @@ function drawBoard(){
     for(let r=0;r<ROWS;r++){
         for(let c=0;c<COLS;c++){
             const cell = board[r][c];
-            if(cell) drawCatBlock(ctx,c,r,cell.color,cell.role,cell.special);
+            if(cell) drawCatBlock(ctx,c,r,cell.color,cell.role);
         }
     }
 
-    current.shape.forEach((row,r)=>row.forEach((val,c)=>{
-        if(val) drawCatBlock(ctx,current.x+c,current.y+r,current.color,current.roles[r][c]!,current.special);
+    current.roles.forEach((row,r)=>row.forEach((val,c)=>{
+        if(val) drawCatBlock(ctx,current.x+c,current.y+r,current.color,current.roles[r][c]!);
     }));
 }
 
@@ -206,12 +208,12 @@ function drawNextPreview() {
     if(!previewCtx) return;
     previewCtx.clearRect(0,0,previewCanvas.width,previewCanvas.height);
 
-    const { shape, roles, color, special } = next;
+    const { roles, color } = next;
 
     let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
-    for(let y=0;y<shape.length;y++){
-        for(let x=0;x<shape[y].length;x++){
-            if(shape[y][x]){
+    for(let y=0;y<roles.length;y++){
+        for(let x=0;x<roles[y].length;x++){
+            if(roles[y][x]){
                 if(x<minX) minX=x;
                 if(x>maxX) maxX=x;
                 if(y<minY) minY=y;
@@ -229,10 +231,10 @@ function drawNextPreview() {
     previewCtx.save();
     previewCtx.translate(offsetX, offsetY);
 
-    for(let y=0;y<shape.length;y++){
-        for(let x=0;x<shape[y].length;x++){
-            if(shape[y][x] && roles[y][x]){
-                drawCatBlock(previewCtx,x-minX,y-minY,color,roles[y][x]!,special);
+    for(let y=0;y<roles.length;y++){
+        for(let x=0;x<roles[y].length;x++){
+            if(roles[y][x]){
+                drawCatBlock(previewCtx,x-minX,y-minY,color,roles[y][x]!);
             }
         }
     }
@@ -251,13 +253,12 @@ document.addEventListener('keydown',(e)=>{
 });
 
 function rotate(piece: Piece){
-    const newShape=piece.shape[0].map((_,i)=>piece.shape.map(row=>row[i]).reverse());
+    if (piece.special) return; // Spezialteile können sich nicht drehen
+
     const newRoles=piece.roles[0].map((_,i)=>piece.roles.map(row=>row[i]).reverse());
-    const oldShape=piece.shape;
     const oldRoles=piece.roles;
-    piece.shape=newShape;
     piece.roles=newRoles;
-    if(collide(piece)){piece.shape=oldShape;piece.roles=oldRoles;}
+    if(collide(piece)){piece.roles=oldRoles;}
 }
 
 // ==== Game Loop ====
@@ -277,7 +278,7 @@ function update(time=0){
 const startButton=document.getElementById('startGame');
 if(startButton){
     startButton.addEventListener('click',()=>{
-        preloadCatImages(PIECES).then(()=>{
+        preloadCatImages([...PIECES.map(p => p.color), SPECIAL_COLOR]).then(()=>{
             startButton.style.display='none';
             startGame();
         });
