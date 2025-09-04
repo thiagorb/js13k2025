@@ -24,13 +24,13 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
      inkscape:zoom="16.272846"
-     inkscape:cx="45.566707"
-     inkscape:cy="46.54994"
-     inkscape:window-width="1920"
-     inkscape:window-height="1043"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
+     inkscape:cx="46.734296"
+     inkscape:cy="46.580666"
+     inkscape:window-width="1033"
+     inkscape:window-height="991"
+     inkscape:window-x="26"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
      inkscape:current-layer="layer2" />
   <defs
      id="defs1" />
@@ -57,13 +57,6 @@
        style="fill:#ffffff;stroke-width:15.0386"
        id="path1-7"
        sodipodi:nodetypes="zssz" />
-    <rect
-       style="fill:none;fill-opacity:0.30322;stroke:#ff0000;stroke-width:0.984427;stroke-dasharray:none;stroke-opacity:1"
-       id="rect1"
-       width="299.01556"
-       height="299.01556"
-       x="350.49222"
-       y="350.49222" />
   </g>
   <g
      inkscape:label="Layer 1"
