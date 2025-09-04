@@ -141,7 +141,7 @@ function clearLines() {
         }
     }
     // todo
-    applyGravityAboveLine(firstLineCleared, firstLineCleared+linesCleared);
+    applyGravityAboveLine(firstLineCleared, linesCleared);
 
     if(linesCleared>0){
         addRowsCleared(linesCleared);
@@ -150,17 +150,14 @@ function clearLines() {
 }
 //
 // ==== Gravity nur oberhalb der gelöschten Reihe ====
-function applyGravityAboveLine(firstLineCleared: number, line: number) {
-    for(let r=line;r>=0;r--){
+function applyGravityAboveLine(firstLineCleared: number, linesCleared: number) {
+    for(let r=firstLineCleared-linesCleared;r>=0;r--){
         for(let c=0;c<COLS;c++){
             const cell = board[r][c];
             if(!cell) continue;
-            let ny = r;
-            while(ny+1 < ROWS){
-                board[ny+1][c] = board[ny][c];
-                board[ny][c] = null;
-                ny++;
-            }
+
+            board[r + linesCleared][c] = board[r][c];
+            board[r][c] = null;
         }
     }
 }
