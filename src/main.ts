@@ -18,7 +18,7 @@ type Cell = {
     role: CatRole;
     special?: boolean;
     hp?: number;
-    group: Set<Cell>;
+    // group: Set<Cell>;
     x: number;
     y: number;
 } | null;
@@ -57,7 +57,7 @@ function spawnPiece(): Piece {
     if(score >= 500){
         const now = Date.now();
         if(now - lastSpecialSpawn >= 25000 || lastSpecialSpawn === 0){
-            isSpecial = true;
+            isSpecial = false;
             lastSpecialSpawn = now;
         }
     }
@@ -96,7 +96,7 @@ function collide(piece: Piece): boolean {
 }
 
 function merge() {
-    const group = new Set<Cell>();
+    // const group = new Set<Cell>();
     current.shape.forEach((row,r)=>{
         row.forEach((val,c)=>{
             if(val){
@@ -108,11 +108,11 @@ function merge() {
                         role: current.roles[r][c]!,
                         special: current.special ?? false,
                         hp: current.special ? 2 : undefined,
-                        group,
+                        // group,
                         x: nx,
                         y: ny,
                     };
-                    group.add(board[ny][nx]);
+                    // group.add(board[ny][nx]);
                 }
             }
         });
@@ -122,7 +122,7 @@ function merge() {
 // ==== Clear Lines + Local Gravity ====
 function clearLines() {
     let linesCleared = 0;
-
+    let firstLineCleared = 0;
     for(let r=ROWS-1;r>=0;r--){
         let full = true;
         for(let c=0;c<COLS;c++){
@@ -130,70 +130,36 @@ function clearLines() {
         }
         if(full){
             linesCleared++;
-            // Lösche oder reduziere HP bei Spezialsteinen
-            for(let c=0;c<COLS;c++){
-                const cell = board[r][c];
-                if(cell?.special && cell.hp && cell.hp>1){
-                    cell.hp--;
-                } else {                    
-                    if (cell) {
-                    // split group in two: above and below
-                        const above = new Set<Cell>();
-                        const below = new Set<Cell>();
-                        for (let block of cell.group) {
-                            if (block!.y < r) {
-                                above.add(block);
-                                block!.group = above;
-                            } else {
-                                below.add(block);
-                                block!.group = below;
-                            }
-                        }
-                    }
-
-                    board[r][c]=null;
-                }
+            if (!firstLineCleared) {
+                firstLineCleared = r;
             }
-            applyGravityAboveLine(r);
+
+
+            for(let c=0;c<COLS;c++){
+                 board[r][c]=null;
+            }
         }
     }
+    // todo
+    applyGravityAboveLine(firstLineCleared, firstLineCleared+linesCleared);
 
     if(linesCleared>0){
         addRowsCleared(linesCleared);
         updateScoreDisplay();
     }
 }
-
+//
 // ==== Gravity nur oberhalb der gelöschten Reihe ====
-function applyGravityAboveLine(line: number) {
-    for(let r=line-1;r>=0;r--){
+function applyGravityAboveLine(firstLineCleared: number, line: number) {
+    for(let r=line;r>=0;r--){
         for(let c=0;c<COLS;c++){
             const cell = board[r][c];
-            if (!cell) continue;
-
-            let canFall = true;
-            for(let block of cell.group){
-                if (block!.y + 1 >= ROWS) {
-                    canFall = false;
-                    break;
-                }
-
-                const under = board[block!.y + 1]?.[block!.x];
-                if (under && !cell.group.has(under)) {
-                    canFall = false;
-                    break;
-                }
-            }
-
-            if (canFall) {
-                for(let block of cell.group){
-                    board[block!.y][block!.x] = null;
-                }
-
-                for(let block of cell.group){
-                    board[block!.y + 1][block!.x] = block;
-                    block!.y += 1;
-                }
+            if(!cell) continue;
+            let ny = r;
+            while(ny+1 < ROWS){
+                board[ny+1][c] = board[ny][c];
+                board[ny][c] = null;
+                ny++;
             }
         }
     }
