@@ -83,6 +83,47 @@
             margin-top: 4px;
             letter-spacing: 1px;
         }
+        #textOverlay {
+            position: absolute;
+            width: 100%;
+            top: 50%; 
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            color: #fff7e0;
+            -webkit-text-stroke: 10px black;
+            paint-order: stroke fill;
+            font-weight: 900;
+            text-align: center;
+            display: none;
+            will-change: transform, opacity;
+            animation: fadeInScale 2s ease-out forwards;
+        }
+
+        /* Fade-in + scale animation for textOverlay */
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 0%) scale(0.2) rotate(-10deg);
+            }
+            30% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) rotate(5deg);
+            }
+            90% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) rotate(5deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-80%, -50%) scale(0.8) rotate(20deg);
+            }
+        }
+        #textOverlay.show {
+            display: block;
+            animation-play-state: running;
+        }
+        
     </style>
 </head>
 <body>
@@ -92,6 +133,7 @@
     <div id="gameContainer" style="position: relative; display: inline-block;">
         <canvas id="game"></canvas>
         <button id="startGame">🐱 Spiel starten</button>
+        <div id="textOverlay">HARD DROP</div>
     </div>
     <div id="scorePanel">
         <div>Points</div>

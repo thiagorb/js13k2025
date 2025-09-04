@@ -13,6 +13,22 @@ canvas.height = ROWS * BLOCK_SIZE;
 const previewCanvas = document.getElementById('nextPiece') as HTMLCanvasElement;
 const previewCtx = previewCanvas.getContext('2d')!;
 
+const textOverlay = document.getElementById('textOverlay') as HTMLDivElement;
+let textOverlayTimeout: ReturnType<typeof setTimeout> | null = null;
+function showTextOverlay(text: string) {
+    if (textOverlayTimeout) {
+        clearTimeout(textOverlayTimeout);
+        textOverlay.classList.remove('show');
+    }
+    textOverlay.textContent = text;
+    textOverlayTimeout = setTimeout(() => {
+        textOverlay.classList.remove('show');
+    }, 2000);
+    requestAnimationFrame(() => {
+        textOverlay.classList.add('show');
+    });
+}
+
 type Cell = {
     color: string;
     role: CatRole;
@@ -61,14 +77,14 @@ let lastSpecialSpawn = 0;
 // ==== Spawn / Next Piece ====
 function spawnPiece(): Piece {
     const score = getScore();
-    let special = Special.NONE;
+    let special: Special = Special.NONE;
 
     const i = Math.floor(Math.random()*PIECES.length);
     const p = PIECES[i];
 
-    if(p.name !== 'Q' && score >= 100){
+    if(score >= 100){
         const now = Date.now();
-        if(now - lastSpecialSpawn >= 25000 || lastSpecialSpawn === 0){
+        if(now - lastSpecialSpawn >= 25000 - Math.min(20000, score) || lastSpecialSpawn === 0){
             special = Math.ceil(Math.random() * 3);
             lastSpecialSpawn = now;
         }
@@ -91,6 +107,10 @@ function setNewPiece() {
     current = next;
     next = spawnPiece();
     drawNextPreview();
+
+    if (current.special === Special.UNMOVABLE) showTextOverlay('UNMOVABLE!');
+    else if (current.special === Special.UNROTATABLE) showTextOverlay('UNROTATABLE!');
+    else if (current.special === Special.HARD_DROP) showTextOverlay('HARD DROP!');
 }
 
 // ==== Collision / Merge / Clear ====
