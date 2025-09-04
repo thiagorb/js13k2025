@@ -16,7 +16,7 @@ const previewCtx = previewCanvas.getContext('2d')!;
 type Cell = {
     color: string;
     role: CatRole;
-    special?: boolean;
+    special: Special;
     hp?: number;
     // group: Set<Cell>;
     x: number;
@@ -28,10 +28,16 @@ interface Piece {
     color: string;
     x: number;
     y: number;
-    special?: boolean;
+    special: Special
 }
 
 const SPECIAL_COLOR = '#333333';
+const enum Special {
+    NONE,
+    UNROTATABLE,
+    UNMOVABLE,
+    HARD_DROP,
+} 
 const PIECES: { name: string; roles: (CatRole | null)[][]; color: string }[] = [
     { name: '4', roles: [['head','body','body','tail']], color:'#ff6666' },
     { name: 'Q', roles: [['head','body'],['legs','tail']], color:'#0044ffff' },
@@ -55,7 +61,7 @@ let lastSpecialSpawn = 0;
 // ==== Spawn / Next Piece ====
 function spawnPiece(): Piece {
     const score = getScore();
-    let isSpecial = false;
+    let special = Special.NONE;
 
     const i = Math.floor(Math.random()*PIECES.length);
     const p = PIECES[i];
@@ -63,17 +69,21 @@ function spawnPiece(): Piece {
     if(p.name !== 'Q' && score >= 100){
         const now = Date.now();
         if(now - lastSpecialSpawn >= 25000 || lastSpecialSpawn === 0){
-            isSpecial = true;
+            special = Math.ceil(Math.random() * 3);
             lastSpecialSpawn = now;
         }
     }
 
+    const x = special === Special.UNMOVABLE
+        ? Math.floor(Math.random() * (COLS - p.roles[0].length + 1))
+        : Math.floor(COLS/2 - Math.ceil(p.roles[0].length/2));
+
     return {
         roles: p.roles.map(r=>[...r]),
-        color: isSpecial ? SPECIAL_COLOR : p.color,
-        x: Math.floor(COLS/2 - Math.ceil(p.roles[0].length/2)),
+        color: special !== Special.NONE ? SPECIAL_COLOR : p.color,
+        x,
         y: 0,
-        special: isSpecial
+        special: special
     };
 }
 
@@ -98,7 +108,6 @@ function collide(piece: Piece): boolean {
 }
 
 function merge() {
-    // const group = new Set<Cell>();
     current.roles.forEach((row,r)=>{
         row.forEach((val,c)=>{
             if(val){
@@ -108,13 +117,10 @@ function merge() {
                     board[ny][nx] = {
                         color: current.color,
                         role: current.roles[r][c]!,
-                        special: current.special ?? false,
-                        hp: current.special ? 2 : undefined,
-                        // group,
+                        special: current.special,
                         x: nx,
                         y: ny,
                     };
-                    // group.add(board[ny][nx]);
                 }
             }
         });
@@ -245,15 +251,17 @@ function drawNextPreview() {
 // ==== Controls ====
 document.addEventListener('keydown',(e)=>{
     if(!gameStarted||gameOver) return;
-    if(e.key==='ArrowLeft'){current.x--;if(collide(current)) current.x++;}
-    else if(e.key==='ArrowRight'){current.x++;if(collide(current)) current.x--;}
-    else if(e.key==='ArrowDown'){drop();}
-    else if(e.key==='ArrowUp'){rotate(current);}
-    else if(e.key===' '){hardDrop();}
+    if (current.special !== Special.UNMOVABLE) {
+        if(e.key==='ArrowLeft'){current.x--;if(collide(current)) current.x++;}
+        if(e.key==='ArrowRight'){current.x++;if(collide(current)) current.x--;}
+    }
+    if(e.key==='ArrowDown'){drop();}
+    if(e.key==='ArrowUp'){rotate(current);}
+    if(e.key===' '){hardDrop();}
 });
 
 function rotate(piece: Piece){
-    if (piece.special) return; // Spezialteile können sich nicht drehen
+    if (piece.special === Special.UNROTATABLE) return; // Spezialteile können sich nicht drehen
 
     const newRoles=piece.roles[0].map((_,i)=>piece.roles.map(row=>row[i]).reverse());
     const oldRoles=piece.roles;
@@ -268,7 +276,13 @@ function update(time=0){
     const delta = time - lastTime;
     lastTime=time;
     dropCounter += delta;
-    if(dropCounter>dropInterval) drop();
+    if(dropCounter>dropInterval) {
+        if (current.special === Special.HARD_DROP) {
+            hardDrop();
+        } else {
+            drop();
+        }
+    }
     updateTimeScore(time);
     drawBoard();
     requestAnimationFrame(update);
