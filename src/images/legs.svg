@@ -31,7 +31,8 @@
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer2" />
+     inkscape:current-layer="layer2"
+     showgrid="false" />
   <defs
      id="defs1" />
   <path
@@ -42,15 +43,7 @@
   <g
      inkscape:groupmode="layer"
      id="layer2"
-     inkscape:label="Layer 2">
-    <rect
-       style="fill:none;fill-opacity:0.30322;stroke:#ff0000;stroke-width:0.984427;stroke-dasharray:none;stroke-opacity:1"
-       id="rect1"
-       width="299.01556"
-       height="299.01556"
-       x="350.49222"
-       y="350.49222" />
-  </g>
+     inkscape:label="Layer 2" />
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
