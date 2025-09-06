@@ -150,43 +150,34 @@ function merge() {
 // ==== Clear Lines + Local Gravity ====
 function clearLines() {
     let linesCleared = 0;
-    let firstLineCleared = 0;
-    for(let r=ROWS-1;r>=0;r--){
+    // Process from bottom to top
+    for(let r = ROWS - 1; r >= 0; r--) {
         let full = true;
-        for(let c=0;c<COLS;c++){
-            if(!board[r][c]) { full=false; break; }
-        }
-        if(full){
-            linesCleared++;
-            if (!firstLineCleared) {
-                firstLineCleared = r;
+        for(let c = 0; c < COLS; c++) {
+            if(!board[r][c]) { 
+                full = false; 
+                break; 
             }
-
-
-            for(let c=0;c<COLS;c++){
-                 board[r][c]=null;
+        }
+        
+        if(full) {
+            // Clear this line
+            for(let c = 0; c < COLS; c++) {
+                board[r][c] = null;
+            }
+            linesCleared++;
+        } else if(linesCleared > 0) {
+            // Shift this line down by the number of lines cleared so far
+            for(let c = 0; c < COLS; c++) {
+                board[r + linesCleared][c] = board[r][c];
+                board[r][c] = null;
             }
         }
     }
-    // todo
-    applyGravityAboveLine(firstLineCleared, linesCleared);
 
     if(linesCleared>0){
         addRowsCleared(linesCleared);
         updateScoreDisplay();
-    }
-}
-//
-// ==== Gravity nur oberhalb der gelöschten Reihe ====
-function applyGravityAboveLine(firstLineCleared: number, linesCleared: number) {
-    for(let r=firstLineCleared-linesCleared;r>=0;r--){
-        for(let c=0;c<COLS;c++){
-            const cell = board[r][c];
-            if(!cell) continue;
-
-            board[r + linesCleared][c] = board[r][c];
-            board[r][c] = null;
-        }
     }
 }
 
