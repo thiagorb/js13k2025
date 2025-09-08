@@ -123,7 +123,15 @@
             display: block;
             animation-play-state: running;
         }
-        
+        #highscoreList li {
+            margin-bottom: 6px;
+            color: #fff7e0;
+            font-weight: 500;
+        }
+        #highscoreList li span {
+            float: right; /* Punktzahl rechtsbündig */
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -132,7 +140,7 @@
 <div id="gameUi" style="display:flex; align-items: start;">
     <div id="gameContainer" style="position: relative; display: inline-block;">
         <canvas id="game"></canvas>
-        <button id="startGame">🐱 Spiel starten</button>
+        <button id="startGame">🐱 Start Game</button>
         <div id="textOverlay">HARD DROP</div>
     </div>
     <div id="scorePanel">
@@ -141,6 +149,11 @@
 
         <div id="nextPieceLabel" style="margin-top:22px; font-size:1.1rem; opacity:.8;">next piece</div>
         <canvas id="nextPiece" style="background:#302e45; border-radius:8px; margin-top:8px; display:block; margin-left:auto; margin-right:auto;"></canvas>
+        <div id="highscoreContainer" style="margin-top:32px;">
+            <div style="font-size:1.1rem; opacity:.85; margin-bottom:8px;">Highscores</div>
+            <ol id="highscoreList" style="padding-left:20px; margin:0; font-size:1rem;">
+            </ol>
+        </div>
     </div>
 </div>
 <script type="module" src="/main.ts"></script>

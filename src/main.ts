@@ -47,6 +47,20 @@ interface Piece {
     special: Special
 }
 
+interface HighscoreEntry {
+    name: string;
+    score: number;
+}
+
+class PieceCount {
+    name: string;
+    count: number;
+    constructor(name: string, count: number = 1) {
+        this.name = name;
+        this.count = count;
+    }
+}
+
 const SPECIAL_COLOR = '#333333';
 const enum Special {
     NONE,
@@ -73,20 +87,72 @@ let lastTime = 0;
 let gameOver = false;
 let gameStarted = false;
 let lastSpecialSpawn = 0;
+let lastSpecial: Special = Special.NONE;
+let lastPiece: PieceCount;
+
+const highscoreList = document.getElementById('highscoreList') as HTMLOListElement;
+
+let highscores: HighscoreEntry[] = [];
+
+function addHighscore(name: string, score: number) {
+    highscores.push({ name, score });
+
+    highscores.sort((a, b) => b.score - a.score);
+
+    if (highscores.length > 10) highscores = highscores.slice(0, 10);
+
+    updateHighscoreDisplay();
+}
+
+function updateHighscoreDisplay() {
+    highscoreList.innerHTML = '';
+    highscores.forEach(entry => {
+        const li = document.createElement('li');
+        li.innerHTML = `${entry.name} <span style="float:right; font-weight:700">${entry.score}</span>`;
+        highscoreList.appendChild(li);
+    });
+}
 
 // ==== Spawn / Next Piece ====
 function spawnPiece(): Piece {
     const score = getScore();
     let special: Special = Special.NONE;
 
-    const i = Math.floor(Math.random()*PIECES.length);
+    let i = Math.floor(Math.random()*PIECES.length);
+    let newPiece = PIECES[i];
+
+    if (lastPiece && lastPiece.name === newPiece.name) {
+        lastPiece.count++;
+    } else {
+        lastPiece = new PieceCount(newPiece.name, 1);
+    }
+
+    if (lastPiece.count >= 3) {
+        do {
+            i = Math.floor(Math.random()*PIECES.length);
+        } while (lastPiece.name !== PIECES[i].name);
+    }
     const p = PIECES[i];
 
     if(score >= 100){
         const now = Date.now();
         if(now - lastSpecialSpawn >= 25000 - Math.min(20000, score) || lastSpecialSpawn === 0){
             special = Math.ceil(Math.random() * 3);
+
+            if (lastSpecial === special) {
+                if (lastSpecial === Special.UNMOVABLE) {
+                    special = Special.UNROTATABLE;
+                }
+                if (lastSpecial === Special.UNROTATABLE) {
+                    special = Special.HARD_DROP;
+                }
+                if (lastSpecial === Special.HARD_DROP) {
+                    special = Special.UNMOVABLE;
+                }
+            }
+
             lastSpecialSpawn = now;
+            lastSpecial = special;
         }
     }
 
@@ -283,7 +349,7 @@ function rotate(piece: Piece){
 // ==== Game Loop ====
 function update(time=0){
     if(!gameStarted) return;
-    if(gameOver){alert('Game Over! Punkte: '+getScore());gameStarted=false;return;}
+    if(gameOver){endGame();return;}
     const delta = time - lastTime;
     lastTime=time;
     dropCounter += delta;
@@ -299,8 +365,18 @@ function update(time=0){
     requestAnimationFrame(update);
 }
 
-// ==== Start Button ====
 const startButton=document.getElementById('startGame');
+
+async function endGame() {
+    gameOver = true;
+    gameStarted = false;
+    addHighscore("New Player", getScore());
+    showTextOverlay('Game Over! Points: ' + getScore());
+    await new Promise(resolve => setTimeout(resolve, 3500));
+    startButton.style.display = 'inline-block';
+}
+
+// ==== Start Button ====
 if(startButton){
     startButton.addEventListener('click',()=>{
         preloadCatImages([...PIECES.map(p => p.color), SPECIAL_COLOR]).then(()=>{
@@ -311,6 +387,19 @@ if(startButton){
 }
 
 function startGame(){
+    if (highscores.length === 0) {
+        addHighscore("Player1", 1500);
+        addHighscore("Player2", 15890);
+        addHighscore("Mastermind", 25000);
+        addHighscore("4Player", 780);
+        addHighscore("CasualGamer", 900);
+        addHighscore("TetrisMaster", 250);
+        addHighscore("Gamer", 100);
+        addHighscore("Player8", 100);
+        addHighscore("Player9", 100);
+        addHighscore("Player10", 100);
+    }
+
     resetScore();
     board = Array.from({length: ROWS},()=>Array(COLS).fill(null));
     current=spawnPiece();
