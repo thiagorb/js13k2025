@@ -94,6 +94,20 @@ const highscoreList = document.getElementById('highscoreList') as HTMLOListEleme
 
 let highscores: HighscoreEntry[] = [];
 
+if (highscores.length === 0) {
+    addHighscore("Player1", 1500);
+    addHighscore("Player2", 15890);
+    addHighscore("Mastermind", 25000);
+    addHighscore("4Player", 780);
+    addHighscore("CasualGamer", 900);
+    addHighscore("TetrisMaster", 250);
+    addHighscore("Gamer", 100);
+    addHighscore("Player8", 100);
+    addHighscore("Player9", 100);
+    addHighscore("Player10", 100);
+}
+
+
 function addHighscore(name: string, score: number) {
     highscores.push({ name, score });
 
@@ -387,19 +401,6 @@ if(startButton){
 }
 
 function startGame(){
-    if (highscores.length === 0) {
-        addHighscore("Player1", 1500);
-        addHighscore("Player2", 15890);
-        addHighscore("Mastermind", 25000);
-        addHighscore("4Player", 780);
-        addHighscore("CasualGamer", 900);
-        addHighscore("TetrisMaster", 250);
-        addHighscore("Gamer", 100);
-        addHighscore("Player8", 100);
-        addHighscore("Player9", 100);
-        addHighscore("Player10", 100);
-    }
-
     resetScore();
     board = Array.from({length: ROWS},()=>Array(COLS).fill(null));
     current=spawnPiece();
