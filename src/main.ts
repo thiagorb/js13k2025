@@ -95,16 +95,16 @@ const highscoreList = document.getElementById('highscoreList') as HTMLOListEleme
 let highscores: HighscoreEntry[] = [];
 
 if (highscores.length === 0) {
-    addHighscore("Player1", 1500);
-    addHighscore("Player2", 15890);
-    addHighscore("Mastermind", 25000);
+    addHighscore("Player", 1500);
+    addHighscore("Mouse", 15890);
+    addHighscore("Black Cat", 25000);
     addHighscore("4Player", 780);
     addHighscore("CasualGamer", 900);
     addHighscore("TetrisMaster", 250);
-    addHighscore("Gamer", 100);
-    addHighscore("Player8", 100);
+    addHighscore("ProGamer", 100);
+    addHighscore("Spicy Chicken", 8000);
     addHighscore("Player9", 100);
-    addHighscore("Player10", 100);
+    addHighscore("Harry Dotter", 3750);
 }
 
 
