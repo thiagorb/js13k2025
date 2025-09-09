@@ -412,3 +412,23 @@ function startGame(){
     dropCounter=0;
     update();
 }
+
+// ==== Viewport Scaling ====
+function scaleGameUI() {
+    const gameUI = document.getElementById('gameUi') as HTMLDivElement;
+    if (!gameUI) return;
+    
+    const viewportHeight = window.innerHeight;
+    const gameUIHeight = gameUI.offsetHeight;
+    
+    if (gameUIHeight > 0) {
+        const scale = viewportHeight / gameUIHeight;
+        gameUI.style.transform = `scale(${scale})`;
+    }
+}
+
+// Add resize event listener
+window.addEventListener('resize', scaleGameUI);
+
+// Initial scaling when page loads
+window.addEventListener('load', scaleGameUI);
