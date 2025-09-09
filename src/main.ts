@@ -1,6 +1,7 @@
 // src/main.ts
 import { drawCatBlock, preloadCatImages, CatRole, BLOCK_SIZE } from './catSvg';
 import { resetScore, addRowsCleared, updateTimeScore, getScore, updateScoreDisplay } from './index';
+import logoSvg from './images/logo.svg';
 
 const COLS = 10;
 const ROWS = 20;
@@ -12,6 +13,9 @@ canvas.height = ROWS * BLOCK_SIZE;
 
 const previewCanvas = document.getElementById('nextPiece') as HTMLCanvasElement;
 const previewCtx = previewCanvas.getContext('2d')!;
+
+const logo = document.getElementById('logo') as HTMLDivElement;
+logo.innerHTML = logoSvg
 
 const textOverlay = document.getElementById('textOverlay') as HTMLDivElement;
 let textOverlayTimeout: ReturnType<typeof setTimeout> | null = null;
