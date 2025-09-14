@@ -4,3 +4,4 @@ dist/
 build/
 build.zip
 package-lock.json
+/.idea

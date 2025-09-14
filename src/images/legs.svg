@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="100"
+   height="100"
+   viewBox="0 0 1000 1000"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (2aeb623e1d, 2025-05-12)"
+   sodipodi:docname="legs.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="16.272846"
+     inkscape:cx="44.491295"
+     inkscape:cy="47.625351"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer2"
+     showgrid="false" />
+  <defs
+     id="defs1" />
+  <path
+     d="m 341.81471,341.85774 c -9.36219,19.78094 -4.19455,42.09062 -4.86663,63.80422 0.10944,57.22418 4.06262,114.42502 2.7678,171.64167 -4.39277,14.84886 -31.53867,10.61337 -38.11114,27.63058 -5.91913,13.20818 -13.69219,38.32256 0.40151,47.54626 34.98429,3.91834 70.23634,2.37325 105.36672,3.30891 84.33482,1.02889 168.66963,2.05779 253.00445,3.08668 -0.27461,-76.56431 -1.49361,-153.13249 -1.14496,-229.69423 0.34741,-23.39619 0.69481,-46.79238 1.04222,-70.18857 -7.92259,-7.93087 -15.84935,-15.85757 -23.78025,-23.78012 -91.95027,1.16087 -183.99557,-3.35691 -275.88193,1.26295 -6.47779,0.9457 -15.92226,-0.69392 -18.79779,5.38165 z"
+     style="fill:#171210;stroke-width:15.3751"
+     id="path1-8"
+     sodipodi:nodetypes="sccccccccccs" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Layer 2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1" />
+  <path
+     d="m 365.20093,361.64375 h 272.55481 c -0.43871,67.46102 0.0863,134.92208 0.0196,202.38012 1.2303,9.64247 -1.80995,28.97271 -9.42595,10.6387 -21.58532,-27.19431 -52.16282,-50.16579 -87.61927,-53.79989 -7.33209,-3.3903 -35.82874,-0.434 -17.44903,8.62689 15.37093,3.65836 31.98591,2.39705 45.97256,11.23943 35.83103,17.12902 65.16008,51.63624 68.83939,92.10257 2.87851,7.53823 0.75074,10.80718 -7.36843,8.96678 H 308.9796 c -0.66624,-14.46622 0.0336,-32.33493 15.13811,-39.43349 34.09403,-15.57728 72.74573,-4.82194 108.34143,-12.40598 6.64576,-4.72081 -10.38557,-12.44143 0.0256,-20.20326 4.52972,-18.87881 -16.1838,4.47839 -22.90736,7.62945 -15.23041,5.69701 -31.91403,2.61334 -47.84112,3.39355 0.47258,-71.9142 1.34122,-143.82195 3.38476,-215.71056 0.0266,-1.14144 0.0533,-2.28287 0.0799,-3.42431 z"
+     style="stroke-width:15.3751"
+     id="path1" />
+</svg>

@@ -1,6 +1,9 @@
-FROM node:latest
+FROM node:20-alpine
 
-RUN apt-get update \
-    && apt-get install -y \
-        zip \
-    && rm -rf /var/lib/apt/lists/*
+USER node
+WORKDIR /app
+
+EXPOSE 5173
+
+ENTRYPOINT [ ]
+CMD ["sh", "-c", "npm install && npm run dev"]
